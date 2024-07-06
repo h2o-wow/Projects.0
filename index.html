@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Unit Counts</title>
+<title>Unit Exists</title>
 <style>
   body {
     font-family: Arial, sans-serif;
@@ -124,7 +124,7 @@
     <button class="toggle-button" onclick="toggleDarkMode()">Toggle Dark Mode</button>
   </div>
 
-  <h1>Unit Counts</h1>
+  <h1>Unit Exists</h1>
 
   <div class="search-container">
     <label for="search">Search Units:</label>
@@ -132,7 +132,7 @@
   </div>
 
   <div id="unitList">
-    <!-- Unit counts will be added here -->
+    
   </div>
 </div>
 
@@ -148,7 +148,7 @@
         // Iterate over the data and create HTML elements
         data.forEach(item => {
           const unitName = item.key.split(':')[1]; // Extract unit name
-          const unitCount = item.value;
+          const unitExist = item.value;
 
           // Replace spaces with underscores in the unit name
           const imageName = unitName.replace(/\s/g, '_');
@@ -161,7 +161,7 @@
           div.classList.add('unit-item');
           div.innerHTML = `<img class="unit-image" src="${imagePath}" alt="${unitName}">
                           <p><strong>Unit:</strong> ${unitName}</p>
-                          <p><strong>Count:</strong> ${unitCount}</p>`;
+                          <p><strong>Exist:</strong> ${unitExist}</p>`;
 
           // Append the div to the unitList element
           unitListElement.appendChild(div);
