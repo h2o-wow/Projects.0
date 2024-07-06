@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit Counts</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    background-color: #f0f0f0;
+    color: #333;
+    transition: background-color 0.3s, color 0.3s;
+  }
+
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s, box-shadow 0.3s;
+  }
+
+  h1 {
+    text-align: center;
+    color: #555;
+    margin-bottom: 20px;
+  }
+
+  .search-container {
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .search-container label {
+    margin-right: 10px;
+  }
+
+  .search-container input[type="text"] {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 200px;
+    transition: border-color 0.3s;
+  }
+
+  .search-container input[type="text"]:focus {
+    outline: none;
+    border-color: #4CAF50;
+  }
+
+  .unit-item {
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #fff;
+    transition: background-color 0.3s;
+    display: flex; /* Add flexbox for better layout */
+    align-items: center; /* Center items vertically */
+  }
+
+  .unit-item:hover {
+    background-color: #f5f5f5;
+  }
+
+  .dark-mode {
+    background-color: #333;
+    color: #fff;
+  }
+
+  .dark-mode .container {
+    background-color: #444;
+    color: #ccc;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+  }
+
+  .dark-mode .unit-item {
+    background-color: #555;
+    border-color: #666;
+    color: #eee;
+  }
+
+  .dark-mode .unit-item:hover {
+    background-color: #666;
+  }
+
+  /* Fancy Toggle Button */
+  .toggle-container {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .toggle-button {
+    cursor: pointer;
+    background-color: #4CAF50;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s;
+  }
+
+  .toggle-button:hover {
+    background-color: #45a049;
+  }
+
+  .unit-image {
+    margin-right: 10px; /* Add space between image and text */
+    width: 50px; /* Set a fixed width for the image */
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="toggle-container">
+    <button class="toggle-button" onclick="toggleDarkMode()">Toggle Dark Mode</button>
+  </div>
+
+  <h1>Unit Counts</h1>
+
+  <div class="search-container">
+    <label for="search">Search Units:</label>
+    <input type="text" id="search" name="search" oninput="searchUnits()">
+  </div>
+
+  <div id="unitList">
+    <!-- Unit counts will be added here -->
+  </div>
+</div>
+
+<script>
+  // Function to fetch data from the API and display units
+  function fetchAndDisplayUnits() {
+    fetch('https://api.toilettowerdefense.com/getExistCount')
+      .then(response => response.json())
+      .then(data => {
+        const unitListElement = document.getElementById('unitList');
+        unitListElement.innerHTML = ''; // Clear previous content
+
+        // Iterate over the data and create HTML elements
+        data.forEach(item => {
+          const unitName = item.key.split(':')[1]; // Extract unit name
+          const unitCount = item.value;
+
+          // Replace spaces with underscores in the unit name
+          const imageName = unitName.replace(/\s/g, '_');
+
+          // Assuming image file names match unit names
+          const imagePath = `images/${imageName}.jpg`; // Or use .png if needed
+
+          // Create a div for each unit item
+          const div = document.createElement('div');
+          div.classList.add('unit-item');
+          div.innerHTML = `<img class="unit-image" src="${imagePath}" alt="${unitName}">
+                          <p><strong>Unit:</strong> ${unitName}</p>
+                          <p><strong>Count:</strong> ${unitCount}</p>`;
+
+          // Append the div to the unitList element
+          unitListElement.appendChild(div);
+        });
+        // Call searchUnits after all unit items are added
+        searchUnits(); 
+      })
+      .catch(error => {
+        console.error('Error fetching data:', error);
+      });
+  }
+
+  // Function to handle search input and filter units
+  function searchUnits() {
+    const searchTerm = document.getElementById('search').value.toLowerCase();
+    const unitItems = document.getElementsByClassName('unit-item');
+
+    Array.from(unitItems).forEach(item => {
+      const unitName = item.querySelector('p:nth-child(2)').textContent.toLowerCase();
+      if (unitName.includes(searchTerm)) {
+        item.style.display = 'block'; // Show item if it matches search term
+      } else {
+        item.style.display = 'none'; // Hide item if it does not match
+      }
+    });
+  }
+
+  // Toggle dark mode
+  function toggleDarkMode() {
+    const body = document.body;
+    body.classList.toggle('dark-mode');
+  }
+
+  // Initial fetch and display of units
+  fetchAndDisplayUnits();
+</script>
+
+</body>
+</html>
