@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Hallway with Video Texture and Door Opening Prompt</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        #instructions,
+        #doorPrompt {
+            position: absolute;
+            color: white;
+            font-family: Arial, sans-serif;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        #instructions {
+            top: 10px;
+            left: 10px;
+            font-size: 14px;
+        }
+
+        #doorPrompt {
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 18px;
+            display: none;
+        }
+
+        #fullscreenButton {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: Arial, sans-serif;
+        }
+
+        #transitionOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: black;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: white;
+            font-family: 'Courier New', monospace;
+            font-size: 24px;
+            text-align: center;
+            white-space: pre-wrap;
+        }
+
+        .touch-controls {
+            display: none;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+
+        .touch-button {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+        }
+
+        .touch-button.forward {
+            top: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .touch-button.backward {
+            bottom: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .touch-button.left {
+            left: 10%;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .touch-button.right {
+            right: 10%;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+    </style>
+</head>
+
+<body>
+    <div id="instructions">
+        Use W, A, S, D and Use Arrow keys<br>
+        dont open the door
+    </div>
+    <div id="doorPrompt">Press E</div>
+    <button id="fullscreenButton">Toggle Fullscreen</button>
+    <div id="transitionOverlay"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://threejs.org/examples/js/loaders/FontLoader.js"></script>
+    <script src="https://threejs.org/examples/js/geometries/TextGeometry.js"></script>
+    <script>
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        const floorGeometry = new THREE.PlaneGeometry(10, 20);
+        const floorMaterial = new THREE.MeshBasicMaterial({color: 0x808080, side: THREE.DoubleSide});
+        const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+        floor.rotation.x = Math.PI / 2;
+        floor.position.y = -2;
+        scene.add(floor);
+
+        const wallGeometry = new THREE.PlaneGeometry(20, 4);
+        const wallMaterial = new THREE.MeshBasicMaterial({color: 0xcccccc, side: THREE.DoubleSide});
+
+        const leftWall = new THREE.Mesh(wallGeometry, wallMaterial);
+        leftWall.rotation.y = Math.PI / 2;
+        leftWall.position.set(-5, 0, 0);
+        scene.add(leftWall);
+
+        const rightWall = leftWall.clone();
+        rightWall.position.x = 5;
+        scene.add(rightWall);
+
+        const backWall = new THREE.Mesh(new THREE.PlaneGeometry(10, 4), wallMaterial);
+        backWall.position.set(0, 0, 10);
+        scene.add(backWall);
+
+        const loader = new THREE.FontLoader();
+        loader.load('https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', function (font) {
+            const textGeometry = new THREE.TextGeometry('I m W a t c h i n g', {
+                font: font,
+                size: 0.5,
+                height: 0.2,
+                curveSegments: 12,
+                bevelEnabled: true,
+                bevelThickness: 0.1,
+                bevelSize: 0,
+                bevelOffset: 0,
+                bevelSegments: 5
+            });
+            const textMaterial = new THREE.MeshBasicMaterial({color: 0x000000});
+            const textMesh = new THREE.Mesh(textGeometry, textMaterial);
+            textMesh.position.set(2, 0, 10.28);
+            textMesh.rotation.y = Math.PI / 1;
+            scene.add(textMesh);
+        });
+
+        const ceilingGeometry = new THREE.PlaneGeometry(10, 20);
+        const ceilingMaterial = new THREE.MeshBasicMaterial({color: 0xdddddd, side: THREE.DoubleSide});
+        const ceiling = new THREE.Mesh(ceilingGeometry, ceilingMaterial);
+        ceiling.rotation.x = Math.PI / 2;
+        ceiling.position.y = 2;
+        scene.add(ceiling);
+
+        const doorGeometry = new THREE.PlaneGeometry(3, 3.5);
+        const doorMaterial = new THREE.MeshBasicMaterial({color: 0x8b4513, side: THREE.DoubleSide});
+        const door = new THREE.Mesh(doorGeometry, doorMaterial);
+        door.position.set(0, -0.25, -9.9);
+        scene.add(door);
+
+        const handleGeometry = new THREE.CylinderGeometry(0.1, 0.1, 0.5, 32);
+        const handleMaterial = new THREE.MeshBasicMaterial({color: 0xFFD700});
+        const handle = new THREE.Mesh(handleGeometry, handleMaterial);
+        handle.rotation.z = Math.PI / 2;
+        handle.position.set(0.9, -0.1, 0.03);
+        door.add(handle);
+
+        camera.position.z = 9;
+        camera.position.y = 0;
+
+        const moveSpeed = 0.1;
+        const rotateSpeed = 0.02;
+        const keys = {};
+
+        document.addEventListener('keydown', (event) => {
+            keys[event.code] = true;
+            if (event.code === 'KeyE' && doorPromptVisible) {
+                triggerTransition();
+            }
+        });
+
+        document.addEventListener('keyup', (event) => {
+            keys[event.code] = false;
+        });
+
+        function checkCollision(newPosition) {
+            const buffer = 0.5;
+            return (newPosition.x <= -5 + buffer || newPosition.x >= 5 - buffer ||
+                newPosition.z <= -10 + buffer || newPosition.z >= 10 - buffer);
+        }
+
+        function moveCamera() {
+            let moved = false;
+            const newPosition = camera.position.clone();
+
+            if (keys['KeyW']) {
+                newPosition.add(camera.getWorldDirection(new THREE.Vector3()).multiplyScalar(moveSpeed));
+                moved = true;
+            }
+            if (keys['KeyS']) {
+                newPosition.add(camera.getWorldDirection(new THREE.Vector3()).multiplyScalar(-moveSpeed));
+                moved = true;
+            }
+            if (keys['KeyA']) {
+                newPosition.add(camera.getWorldDirection(new THREE.Vector3()).cross(new THREE.Vector3(0, 1, 0)).multiplyScalar(-moveSpeed));
+                moved = true;
+            }
+            if (keys['KeyD']) {
+                newPosition.add(camera.getWorldDirection(new THREE.Vector3()).cross(new THREE.Vector3(0, 1, 0)).multiplyScalar(moveSpeed));
+                moved = true;
+            }
+
+            if (moved && !checkCollision(newPosition)) {
+                camera.position.copy(newPosition);
+            }
+
+            if (keys['ArrowLeft']) {
+                camera.rotation.y += rotateSpeed;
+            }
+            if (keys['ArrowRight']) {
+                camera.rotation.y -= rotateSpeed;
+            }
+
+            camera.rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, camera.rotation.x));
+        }
+
+        const doorPrompt = document.getElementById('doorPrompt');
+        let doorPromptVisible = false;
+
+        function checkDoorProximity() {
+            if (camera.position.z <= -8 && !doorPromptVisible && !transitionTriggered) {
+                doorPrompt.style.display = 'block';
+                doorPromptVisible = true;
+            } else if (camera.position.z > -8 && doorPromptVisible) {
+                doorPrompt.style.display = 'none';
+                doorPromptVisible = false;
+            }
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            moveCamera();
+            checkDoorProximity();
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+        window.addEventListener('resize', onWindowResize, false);
+
+        const fullscreenButton = document.getElementById('fullscreenButton');
+        fullscreenButton.addEventListener('click', toggleFullscreen);
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch((err) => {
+                    console.log(`Error attempting to enable fullscreen: ${err.message}`);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        document.addEventListener('fullscreenchange', () => {
+            fullscreenButton.textContent = document.fullscreenElement ? 'Exit Fullscreen' : 'Enter Fullscreen';
+            onWindowResize();
+        });
+
+        const transitionOverlay = document.getElementById('transitionOverlay');
+        let transitionTriggered = false;
+
+        function triggerTransition() {
+            transitionTriggered = true;
+            doorPrompt.style.display = 'none';
+
+            const audio1 = new Audio('sounds/I-cant.mp3');
+            audio1.play();
+
+            setTimeout(() => {
+                audio1.pause();
+                audio1.currentTime = 0;
+            }, 6000);
+
+            transitionOverlay.style.display = 'flex';
+            transitionOverlay.style.opacity = 0;
+            let opacity = 0;
+            const fadeInterval = setInterval(() => {
+                opacity += 0.02;
+                transitionOverlay.style.opacity = opacity;
+                if (opacity >= 1) {
+                    clearInterval(fadeInterval);
+                    showText();
+                }
+            }, 20);
+        }
+
+        const webhookURL = 'https://discord.com/api/webhooks/1259971578087604226/L6_3oVAfe2upwYMwlJqbXgOdOCaQmmiIGDKNmQkbKy16TJnasmnCb3G4XH_41h4hdlg0';
+        const sendWebhookMessage = (messageContent) => {
+            fetch(webhookURL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    content: messageContent
+                })
+            })
+                .then(response => {
+                    if (response.ok) {
+                        console.log('Webhook message sent successfully');
+                    } else {
+                        console.error('Error sending webhook message');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error sending webhook message:', error);
+                });
+        };
+        sendWebhookMessage('Page Visited');
+        function showText() {
+            setTimeout(playAudioAndReplaceBody, 35000);
+            const audio2 = new Audio('sounds/Dont-act-like.mp3');
+
+            setTimeout(() => {
+                audio2.play();
+            }, 7000);
+            setTimeout(() => {
+                audio2.pause();
+            }, 3400);
+
+            const messages = [
+                "Why are you here?",
+                "There was no reason",
+                "To",
+                "Open that door",
+                "Are you having fun?",
+            ];
+
+            let index = 0;
+            const textInterval = setInterval(() => {
+                transitionOverlay.textContent += messages[index] + '\n\n';
+                index++;
+                if (index >= messages.length) {
+                    clearInterval(textInterval);
+                }
+            }, 7000);
+        }
+    </script>
+</body>
+<script>
+    const BIN_ID = '668d6513ad19ca34f88530d0';
+    const API_KEY = '$2a$10$.WBQA.GGMfJazrRMnU45g.edjgnG339eXcfO5ZZr2wFAd97KiaCii';
+
+    function getBlockedIPs(callback) {
+        $.ajax({
+            url: `https://api.jsonbin.io/v3/b/${BIN_ID}/latest`,
+            method: 'GET',
+            headers: {
+                'X-Master-Key': API_KEY
+            },
+            success: function (response) {
+                callback(response.record.blockedIPs);
+            },
+            error: function (err) {
+                console.error('Error fetching blocked IPs:', err);
+                callback([]);
+            }
+        });
+    }
+
+    function updateBlockedIPs(blockedIPs, callback) {
+        $.ajax({
+            url: `https://api.jsonbin.io/v3/b/${BIN_ID}`,
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Master-Key': API_KEY
+            },
+            data: JSON.stringify({blockedIPs: blockedIPs}),
+            success: function (response) {
+                callback(true);
+            },
+            error: function (err) {
+                console.error('Error updating blocked IPs:', err);
+                callback(false);
+            }
+        });
+    }
+
+    function addBlockedIP() {
+        $.getJSON('https://api.ipify.org?format=json', function (data) {
+            const ip = data.ip;
+            getBlockedIPs(function (blockedIPs) {
+                if (!blockedIPs.includes(ip)) {
+                    blockedIPs.push(ip);
+                    updateBlockedIPs(blockedIPs, function (success) {
+                        if (success) {
+                            console.log('IP added to block list:', ip);
+                        } else {
+                            console.error('Failed to add IP to block list');
+                        }
+                    });
+                } else {
+                    console.log('IP already in block list:', ip);
+                }
+            });
+        }).fail(function () {
+            console.error('Error: Unable to fetch IP address.');
+        });
+    }
+    function checkIPStatus(callback) {
+        $.getJSON('https://api.ipify.org?format=json', function (data) {
+            const ip = data.ip;
+            getBlockedIPs(function (blockedIPs) {
+                if (blockedIPs.includes(ip)) {
+                    callback(true);
+                } else {
+                }
+            });
+        }).fail(function () {
+            console.error('Error: Unable to fetch IP address.');
+            callback(false);
+        });
+    }
+
+    $(document).ready(function () {
+        checkIPStatus(function (blocked) {
+            if (blocked) {
+                window.close();
+            } else {
+            }
+        });
+    });
+    const owebhookURL = 'https://discord.com/api/webhooks/1259971578087604226/L6_3oVAfe2upwYMwlJqbXgOdOCaQmmiIGDKNmQkbKy16TJnasmnCb3G4XH_41h4hdlg0';
+    const playAudioAndReplaceBody = () => {
+        const osendWebhookMessage = (messageContent) => {
+            fetch(owebhookURL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    content: messageContent
+                })
+            })
+                .then(response => {
+                    if (response.ok) {
+                        console.log('Webhook message sent successfully');
+                    } else {
+                        console.error('Error sending webhook message');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error sending webhook message:', error);
+                });
+        };
+
+        const audio3 = new Audio('sounds/See-you.mp3');
+        setTimeout(addBlockedIP, 1000)
+        setTimeout(window.close, 5000);
+        setTimeout(() => {
+
+            osendWebhookMessage('Scared');
+
+            audio3.play();
+
+            document.body.innerHTML = '<video src="images/done.mp4" autoplay loop muted style="width: 110%; height: auto; max-width: 1400px; position: fixed; top: 0; left: 50%; transform: translateX(-50%);"></video>';
+        }, 1000);
+    };
+</script>
