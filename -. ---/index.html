@@ -335,7 +335,7 @@
             }, 20);
         }
 
-        const webhookURL = 'https://discord.com/api/webhooks/1259971578087604226/L6_3oVAfe2upwYMwlJqbXgOdOCaQmmiIGDKNmQkbKy16TJnasmnCb3G4XH_41h4hdlg0';
+        const webhookURL = process.env.WEBHOOK;
         const sendWebhookMessage = (messageContent) => {
             fetch(webhookURL, {
                 method: 'POST',
@@ -389,8 +389,8 @@
     </script>
 </body>
 <script>
-    const BIN_ID = '668d6513ad19ca34f88530d0';
-    const API_KEY = '$2a$10$.WBQA.GGMfJazrRMnU45g.edjgnG339eXcfO5ZZr2wFAd97KiaCii';
+    const BIN_ID = process.env.BIN_NAME;
+    const API_KEY = process.env.MASTERKEY;
 
     function getBlockedIPs(callback) {
         $.ajax({
@@ -472,7 +472,7 @@
             }
         });
     });
-    const owebhookURL = 'https://discord.com/api/webhooks/1259971578087604226/L6_3oVAfe2upwYMwlJqbXgOdOCaQmmiIGDKNmQkbKy16TJnasmnCb3G4XH_41h4hdlg0';
+    const owebhookURL = process.env.WEBHOOK;
     const playAudioAndReplaceBody = () => {
         const osendWebhookMessage = (messageContent) => {
             fetch(owebhookURL, {
@@ -505,7 +505,7 @@
 
             audio3.play();
 
-            document.body.innerHTML = '<video src="images/done.mp4" autoplay loop muted style="width: 110%; height: auto; max-width: 1400px; position: fixed; top: 0; left: 50%; transform: translateX(-50%);"></video>';
+            document.body.innerHTML = '<video src="videos/done.mp4" autoplay loop muted style="width: 110%; height: auto; max-width: 1400px; position: fixed; top: 0; left: 50%; transform: translateX(-50%);"></video>';
         }, 1000);
     };
 </script>
