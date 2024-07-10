@@ -14,19 +14,19 @@ jobs:
       env:
         WEBHOOK: ${{ secrets.WEBHOOK }}
       run: |
-        sed -i 's/{{WEBHOOK}}/'$WEBHOOK'/g' -. ---/index.html
+        sed -i 's/{{WEBHOOK}}/'$WEBHOOK'/g' hey/index.html
 
     - name: Replace BIN_NAME in index.html
       env:
         BIN_NAME: ${{ secrets.BIN_NAME }}
       run: |
-        sed -i 's/{{BIN_NAME}}/'$BIN_NAME'/g' -. ---/index.html
+        sed -i 's/{{BIN_NAME}}/'$BIN_NAME'/g' hey/index.html
 
     - name: Replace MASTERKEY in index.html
       env:
         MASTERKEY: ${{ secrets.MASTERKEY }}
       run: |
-        sed -i 's/{{MASTERKEY}}/'$MASTERKEY'/g' -. ---/index.html
+        sed -i 's/{{MASTERKEY}}/'$MASTERKEY'/g' hey/index.html
 
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v3
