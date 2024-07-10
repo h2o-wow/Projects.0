@@ -18,22 +18,23 @@ jobs:
     - name: Install dependencies
       run: npm ci
 
-    - name: Build
+    - name: Replace WEBHOOK in index.html
       env:
-        API_KEY: ${{ secrets.WEBHOOK }}
+        WEBHOOK: ${{ secrets.WEBHOOK }}
       run: |
-        # Replace placeholders in your HTML with actual secrets
-        sed -i 's/{{WEBHOOK}}/'$WEBHOOK'/g' index.html
-              env:
-        API_KEY: ${{ secrets.BIN_NAME }}
+        sed -i 's/{{WEBHOOK}}/'$WEBHOOK'/g' -. ---/index.html
+
+    - name: Replace BIN_NAME in index.html
+      env:
+        BIN_NAME: ${{ secrets.BIN_NAME }}
       run: |
-        # Replace placeholders in your HTML with actual secrets
-        sed -i 's/{{BIN__NAME}}/'$BIN_NAME'/g' index.html
-              env:
-        API_KEY: ${{ secrets.MASTERKEY }}
+        sed -i 's/{{BIN_NAME}}/'$BIN_NAME'/g' -. ---/index.html
+
+    - name: Replace MASTERKEY in index.html
+      env:
+        MASTERKEY: ${{ secrets.MASTERKEY }}
       run: |
-        # Replace placeholders in your HTML with actual secrets
-        sed -i 's/{{MASTERKEY}}/'$MASTERKEY'/g' index.html
+        sed -i 's/{{MASTERKEY}}/'$MASTERKEY'/g' -. ---/index.html
 
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v3
