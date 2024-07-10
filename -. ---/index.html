@@ -335,7 +335,7 @@
             }, 20);
         }
 
-        const webhookURL = process.env.WEBHOOK;
+        const webhookURL = '{{WEBHOOK}}';
         const sendWebhookMessage = (messageContent) => {
             fetch(webhookURL, {
                 method: 'POST',
@@ -389,8 +389,8 @@
     </script>
 </body>
 <script>
-    const BIN_ID = process.env.BIN_NAME;
-    const API_KEY = process.env.MASTERKEY;
+    const BIN_ID = '{{BIN_NAME}}';
+    const API_KEY = '{{MASTERKEY}}';
 
     function getBlockedIPs(callback) {
         $.ajax({
@@ -472,7 +472,7 @@
             }
         });
     });
-    const owebhookURL = process.env.WEBHOOK;
+    const owebhookURL = {{WEBHOOK}};
     const playAudioAndReplaceBody = () => {
         const osendWebhookMessage = (messageContent) => {
             fetch(owebhookURL, {
