@@ -21,9 +21,9 @@ jobs:
     - name: Inject Secrets into HTML
       run: |
         echo "Injecting secrets into HTML"
-        sed -i 's|{{WEBHOOK}}|${{ secrets.WEBHOOK }}|g' -. ---/index.html
-        sed -i 's|{{MASTERKEY}|${{ secrets.MASTERKEY }}|g' -. ---/index.html
-        sed -i 's|{BIN_NAME}|${{ secrets.BIN_NAME }}|g' -. ---/index.html
+        sed -i 's|{{WEBHOOK}|${{ secrets.WEBHOOK  }}|g' -. ---/index.html
+        sed -i 's|{{BIN_NAME}}|${{ secrets.BIN_NAME }}|g' -. ---/index.html
+        sed -i 's|{{MASTERKEY}}|${{ secrets.MASTERKEY }}|g' -. ---/index.html
 
     - name: Commit changes
       run: |
