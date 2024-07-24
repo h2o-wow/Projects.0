@@ -1,0 +1,147 @@
+body {
+  background-color: #ffffff;
+  font-family: 'Fredoka One', cursive;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+}
+
+
+.text {
+  position: absolute;
+  width: 205px;
+  height: 205px;
+  top: -12px;
+  left: 315px;
+  z-index: 3;
+}
+
+.custom-text {
+  position: absolute;
+  color: white;
+  font-family: Arial, sans-serif;
+  font-size: 24px;
+}
+
+.background-color2 {
+  background-color: #00b1ff;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -2;
+}
+
+.container {
+  position: absolute;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  text-align: center;
+  width: 737px;
+  height: 447px;
+  left: 285px;
+  top: 98px;
+  outline: 4px solid #0175b2;
+}
+
+.background-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url('https://i.imgur.com/3Pk1Yil.png');
+  background-position: 700px 292px;
+  background-size: 700px 293px;
+  opacity: 0.2;
+  /* Adjust opacity as needed */
+  z-index: -1;
+  /* Position behind content */
+}
+
+h1 {
+  font-size: 36px;
+  color: #fff;
+  margin: 10px 0;
+}
+
+h2 {
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.content {
+  display: flex;
+  justify-content: space-between;
+}
+
+button {
+  position: absolute;
+  background-color: #000000;
+  border: none;
+  border-radius: 100px;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 10px 20px;
+  transition: background-color 0.3s ease;
+  width: 337px;
+  margin: 10px 0;
+  height: 60px;
+  top: 380px;
+  left: 405px;
+}
+
+button2 {
+  background-color: #0095b3;
+  border: none;
+  border-radius: 90px;
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 10px 20px;
+  transition: background-color 0.3s ease;
+  width: 100%;
+  margin: 10px 0;
+}
+
+#result {
+  margin-top: 20px;
+  font-size: 18px;
+  color: #333;
+}
+
+.transparent-overlay {
+  position: absolute;
+  top: 0.1;
+  left: 9;
+  width: 60%;
+  height: auto;
+  z-index: 2;
+  opacity: 0.7;
+  /* Adjust the transparency level (0.0 - 1.0) */
+  pointer-events: none;
+  /* Makes sure the image doesn't interfere with clicks */
+}
+
+.hidden {
+  display: none;
+}
+
+#toggleButton {
+  padding: 5px 10px;
+  /* Adjust padding as needed */
+  font-size: 12px;
+  /* Adjust font size as needed */
+  cursor: pointer;
+  position: fixed;
+  /* Fixed positioning */
+  bottom: 10px;
+  /* Distance from the bottom */
+  right: 10px;
+  /* Distance from the right */
+}
